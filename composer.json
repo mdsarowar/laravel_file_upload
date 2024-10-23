@@ -1,0 +1,30 @@
+{
+    "name": "sarowar/laravel_file_upload",
+    "description": "A Laravel package for handling file uploads with support for validation, multiple file types, and storage options (local, s3, etc.).",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Sarowar\\LaravelFileUpload\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "sarowar"
+        }
+    ],
+    "require": {
+        "intervention/image": "^3.9"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Sarowar\\LaravelFileUpload\\FileUploadServiceProvider"
+
+            ],
+            "aliases": {
+
+            }
+        }
+    }
+}
