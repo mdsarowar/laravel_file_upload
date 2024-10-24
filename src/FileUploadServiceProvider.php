@@ -17,7 +17,7 @@ class FileUploadServiceProvider extends ServiceProvider
     {
         // Publish the configuration file
         $this->publishes([
-            __DIR__.'/config/sarowar-file-upload.php' => config_path('sarowar-file-upload'),
+            __DIR__.'/config/sarowar-file-upload.php' => config_path('sarowar-file-upload.php'),
         ]);
 
         // Load the configuration file
