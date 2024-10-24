@@ -14,7 +14,7 @@ LaravelFileUpload is a simple package for uploading and processing files `(image
 You can install the package via Composer:
 
 ```php
-composer require sarowar/laravel_file_upload
+composer require sarowar/laravel-dynamic-file-upload
 
 ```
 ## Publishing Configuration
