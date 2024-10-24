@@ -2,7 +2,7 @@
 LaravelFileUpload is a simple package for uploading and processing files `(images, PDFs, etc.)` in a Laravel application. It supports image resizing using the `Intervention Image` library and allows you to handle file uploads to both public and storage directories.
 ## Version
 
-**Current Version:** 1.0.0
+**Current Version:** 1.2.1
 ## Features
     - Upload files (images, PDFs, etc.)
     - Resize images (optional)
