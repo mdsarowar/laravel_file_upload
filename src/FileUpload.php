@@ -7,68 +7,87 @@ use Intervention\Image\Drivers\Gd\Driver;
 
 class FileUpload
 {
-    public function fileUpload($file, $imageDirectory, $imageNameString = null, $width = null, $height = null, $newextension = null, $existlFileUrl = null)
+    public static function fileUpload($file, $imageDirectory, $imageNameString = null, $width = null, $height = null, $newextension = null, $existlFileUrl = null)
     {
+        // Get file path configuration (public or storage)
+        $filePath = config('sarowar-file-upload.file_path', 'storage');
+
         // Check if file exists
         if ($file) {
             // Delete existing file if provided
-            if (isset($existlFileUrl) && file_exists($existlFileUrl)) {
-                unlink($existlFileUrl);
+            if (isset($existlFileUrl) && !empty($existlFileUrl)) {
+                // Construct full path based on configuration
+                if ($filePath == 'public') {
+                    $fullExistingPath = public_path($existlFileUrl);
+                } else {
+                    $fullExistingPath = storage_path('app/public/' . $existlFileUrl);
+                }
+
+                // Check and delete if file exists
+                if (file_exists($fullExistingPath)) {
+                    unlink($fullExistingPath);
+                }
             }
 
-            $filePath = config('sarowar-file-upload.file_path');
-
-            // Create the directory if it doesn't exist
+            // Determine storage path based on configuration
             if ($filePath == 'public') {
                 $storagePath = public_path($imageDirectory);
-                if (!file_exists($storagePath)) {
-                    mkdir($storagePath, 0777, true);
-                }
             } else {
-                $storagePath = storage_path( $imageDirectory);
-                if (!file_exists($storagePath)) {
-                    mkdir($storagePath, 0777, true);
-                }
+                $storagePath = storage_path('app/public/' . $imageDirectory);
             }
+
+            // Create the directory if it doesn't exist
+            if (!file_exists($storagePath)) {
+                mkdir($storagePath, 0777, true);
+            }
+
             // Determine the file name and extension
             $extension = $newextension ?: $file->getClientOriginalExtension();
             $imageName = (isset($imageNameString) ? $imageNameString : 'new') . '-' . time() . rand(10, 1000) . '.' . $extension;
-            // Move the uploaded file to the specified directory
+
+            // Relative file URL for database storage
             $fileUrl = $imageDirectory . $imageName;
 
-
-
-            // If the file is an image, process it
+            // If the file is an image and needs resizing
             if ($width && $height) {
-                $file->move(public_path('sarowar/fileupload/'), $imageName); // Move to public path
-                $manager = new ImageManager(new Driver());
+                // Create temporary directory for processing
+                $tempDir = public_path('sarowar/fileupload/');
+                if (!file_exists($tempDir)) {
+                    mkdir($tempDir, 0777, true);
+                }
 
-                $file = $manager->read('sarowar/fileupload/'.$imageName);
-                if ($width && $height) {
-                    $file->resize($width, $height);
-                }
-                // Save the resized image to the correct path
+                // Move to temporary location
+                $file->move($tempDir, $imageName);
+
+                // Process image with Intervention Image
+                $manager = new ImageManager(new Driver());
+                $image = $manager->read($tempDir . $imageName);
+                $image->resize($width, $height);
+
+                // Save to final destination based on configuration
                 if ($filePath == 'public') {
-                    $file->save(public_path($fileUrl));
-                    if (file_exists('sarowar/fileupload/'.$imageName)) {
-                        unlink('sarowar/fileupload/'.$imageName);
-                    }
-                }else{
-                    $file->save(storage_path($fileUrl));
-                    if (file_exists('sarowar/fileupload/'.$imageName)) {
-                        unlink('sarowar/fileupload/'.$imageName);
-                    }
+                    $image->save(public_path($fileUrl));
+                } else {
+                    $image->save(storage_path('app/public/' . $fileUrl));
                 }
-            }else{
+
+                // Delete temporary file
+                $tempFilePath = $tempDir . $imageName;
+                if (file_exists($tempFilePath)) {
+                    unlink($tempFilePath);
+                }
+            } else {
+                // Move file directly without resizing
                 if ($filePath == 'public') {
-                    $file->move(public_path($imageDirectory), $imageName); // Move to public path
-                }else{
-                    $file->move(storage_path($imageDirectory), $imageName); // Move to storage path
+                    $file->move(public_path($imageDirectory), $imageName);
+                } else {
+                    $file->move(storage_path('app/public/' . $imageDirectory), $imageName);
                 }
             }
-            return $fileUrl; // Return the file URL
+
+            return $fileUrl; // Return relative path for database
         } else {
-            return $existlFileUrl; // Return the existing file URL if no new file is uploaded
+            return $existlFileUrl; // Return existing file URL if no new file
         }
     }
 }

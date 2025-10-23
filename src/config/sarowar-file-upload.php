@@ -12,5 +12,5 @@ return [
     |
     */
 
-    'file_path' => 'storage', // Change to 'storage' if you prefer to use the storage folder
+    'file_path' => 'public', // Change to 'storage' if you prefer to use the storage folder
 ];
