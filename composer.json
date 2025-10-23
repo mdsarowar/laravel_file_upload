@@ -2,6 +2,7 @@
     "name": "sarowar/laravel-dynamic-file-upload",
     "description": "A Laravel package for handling file uploads with support for validation, multiple file types, and storage options (local, s3, etc.).",
     "type": "library",
+    "version": "2.0.0",
     "license": "MIT",
     "autoload": {
         "psr-4": {
